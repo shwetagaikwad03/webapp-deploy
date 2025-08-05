@@ -20,3 +20,23 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
+
+# 👇 Add a new deployment stage
+- stage: Deploy
+  dependsOn: Build
+  jobs:
+  - deployment: DeployJob
+    environment: 'qa'  # 🔹 Name of the environment (must match Azure DevOps Environment name)
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: drop
+
+          - script: |
+              echo "Deploying files from artifact:"
+              ls $(Pipeline.Workspace)/drop
+              echo "Simulating deployment..."
+          displayName: 'Deploy to Dev Environment'
+
